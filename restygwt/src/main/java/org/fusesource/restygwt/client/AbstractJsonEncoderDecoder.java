@@ -19,6 +19,7 @@
 package org.fusesource.restygwt.client;
 
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.TimeZone;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONException;
@@ -310,7 +311,8 @@ abstract public class AbstractJsonEncoderDecoder<T> implements JsonEncoderDecode
                 if (str == null) {
                     throw new DecodingException("Expected a json string, but was given: " + value);
                 }
-                return DateTimeFormat.getFormat(format).parse(str.stringValue());
+                // Patched
+                return DateTimeFormat.getFormat(format + " z").parse(str.stringValue() + " GMT"); // Force UTC
             }
         }
 
@@ -322,7 +324,8 @@ abstract public class AbstractJsonEncoderDecoder<T> implements JsonEncoderDecode
             if (format == null) {
                 return new JSONNumber(value.getTime());
             } else {
-                return new JSONString(DateTimeFormat.getFormat(format).format(value));
+            	// Patched
+                return new JSONString(DateTimeFormat.getFormat(format).format(value, TimeZone.createTimeZone(0)));
             }
         }
     };
